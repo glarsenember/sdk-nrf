@@ -1302,15 +1302,20 @@ static void method_gnss_prepare_work_fn(struct k_work *work)
 static void method_gnss_start_work_fn(struct k_work *work)
 {
 	int err = 0;
+	int tmperr = 0;
 
 	/* Configure GNSS to continuous tracking mode */
 	err = nrf_modem_gnss_fix_interval_set(1);
+	LOG_DBG("nmgs_fix_interval: %d", err);
+
 	if (err == -NRF_EACCES) {
 		LOG_WRN("Modem's system or functional mode doesn't allow GNSS usage");
 	}
 
 #if defined(CONFIG_NRF_CLOUD_AGNSS_ELEVATION_MASK)
-	err |= nrf_modem_gnss_elevation_threshold_set(CONFIG_NRF_CLOUD_AGNSS_ELEVATION_MASK);
+	tmperr = nrf_modem_gnss_elevation_threshold_set(CONFIG_NRF_CLOUD_AGNSS_ELEVATION_MASK);
+	LOG_DBG("nmgs_elevation_threshold: %d", tmperr);
+	err |= tmperr;
 #endif
 
 	insuf_timewin_count = 0;
@@ -1334,7 +1339,9 @@ static void method_gnss_start_work_fn(struct k_work *work)
 		break;
 	}
 
-	err |= nrf_modem_gnss_use_case_set(use_case);
+	tmperr = nrf_modem_gnss_use_case_set(use_case);
+	LOG_DBG("nmgs_use_case: %d", tmperr);
+	err |= tmperr;
 
 	if (err) {
 		LOG_ERR("Failed to configure GNSS");
