@@ -638,6 +638,7 @@ void method_gnss_event_handler(int event)
 
 int method_gnss_cancel(void)
 {
+	LOG_WRN("GNSS STOP");
 	int err = nrf_modem_gnss_stop();
 	int sleeping;
 	int rrc_idling;
@@ -1380,6 +1381,7 @@ static void method_gnss_start_work_fn(struct k_work *work)
 		return;
 	}
 
+	LOG_WRN("GNSS START");
 	err = nrf_modem_gnss_start();
 	if (err) {
 		LOG_ERR("Failed to start GNSS, error: %d", err);
